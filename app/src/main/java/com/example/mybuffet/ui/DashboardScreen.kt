@@ -1,4 +1,4 @@
-package com.example.mybuffet
+package com.example.mybuffet.ui.dashboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -26,18 +26,21 @@ import com.example.mybuffet.models.Evento
 @Composable
 fun DashboardScreen(
     eventos: List<Evento>,
+    username: String,
+    onEventoClick: (Evento) -> Unit,
     onAgregarClick: () -> Unit,
-    onCerrarClick: () -> Unit,
-    onEventoClick: (Evento) -> Unit
+    onCerrarClick: () -> Unit
+
 ) {
     var filtroTexto by remember { mutableStateOf("") }
     var filtrarActivos by remember { mutableStateOf(true) }
     var filtrarInactivos by remember { mutableStateOf(false) }
+    var filtrarBorrados by remember { mutableStateOf(false) }
 
     // Filtrar eventos según búsqueda y estado
     val eventosFiltrados = eventos.filter { evento ->
         val nombreCoincide = evento.nombre.contains(filtroTexto, ignoreCase = true)
-        val estadoCoincide = (filtrarActivos && evento.estado == 1) || (filtrarInactivos && evento.estado == 0)
+        val estadoCoincide = (filtrarActivos && evento.estado == 1) || (filtrarInactivos && evento.estado == 0 ) || (filtrarBorrados && evento.estado == 8 )
         nombreCoincide && estadoCoincide
     }
 
@@ -46,6 +49,7 @@ fun DashboardScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        Text("Hola, $username!", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
         // Título artístico centrado
         Box(
             modifier = Modifier
@@ -104,6 +108,12 @@ fun DashboardScreen(
                 onCheckedChange = { filtrarInactivos = it }
             )
             Text("Inactivos")
+
+            Checkbox(
+                checked = filtrarBorrados,
+                onCheckedChange = { filtrarBorrados = it }
+            )
+            Text("Borrados")
         }
 
         Spacer(modifier = Modifier.height(12.dp))

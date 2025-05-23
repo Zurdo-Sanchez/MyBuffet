@@ -1,4 +1,4 @@
-package com.example.mybuffet.ui.theme
+package com.example.mybuffet.ui.evento
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -28,8 +29,8 @@ fun EventoDetalleScreen(
     onEventoActualizado: () -> Unit,
     onEventoBorrado: () -> Unit,
     onIrAlBuffet: () -> Unit,
-    onProductos: () -> Unit,
-    onVerRecaudacion: () -> Unit
+    onVerRecaudacion: () -> Unit,
+    onProductos: () -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
 
@@ -164,40 +165,42 @@ fun EventoDetalleScreen(
                         .weight(1f)
                         .padding(8.dp)
                 )
-                Box {
-                    IconButton(onClick = { menuExpandido = true }) {
-                        Icon(Icons.Filled.Settings, contentDescription = "Configuración")
-                    }
-                    DropdownMenu(
-                        expanded = menuExpandido,
-                        onDismissRequest = { menuExpandido = false }
-                    ) { if (evento.estado == 1) {
-                        DropdownMenuItem(
-                            text = { Text("Editar nombre") },
-                            onClick = {
-                                menuExpandido = false
-                                editandoNombre = true
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Filled.Edit, contentDescription = "Editar")
-                            }
-                        )
-                    }{if (evento.estado == )
-                        DropdownMenuItem(
-                            text = { Text("Borrar evento") },
-                            onClick = {
-                                menuExpandido = false
-                                mostrarConfirmarBorrar = true
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Filled.Delete,
-                                    contentDescription = "Borrar",
-                                    tint = MaterialTheme.colorScheme.error
+                 if (evento.estado != 8) {
+                    Box {
+                        IconButton(onClick = { menuExpandido = true }) {
+                            Icon(Icons.Filled.Settings, contentDescription = "Configuración")
+                        }
+                        DropdownMenu(
+                            expanded = menuExpandido,
+                            onDismissRequest = { menuExpandido = false }
+                        ) {
+                            if (evento.estado == 1) {
+                                DropdownMenuItem(
+                                    text = { Text("Editar nombre") },
+                                    onClick = {
+                                        menuExpandido = false
+                                        editandoNombre = true
+                                    },
+                                    leadingIcon = {
+                                        Icon(Icons.Filled.Edit, contentDescription = "Editar")
+                                    }
                                 )
                             }
-                    }
-                        )
+                            DropdownMenuItem(
+                                text = { Text("Borrar evento") },
+                                onClick = {
+                                    menuExpandido = false
+                                    mostrarConfirmarBorrar = true
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Filled.Delete,
+                                        contentDescription = "Borrar",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -235,7 +238,10 @@ fun EventoDetalleScreen(
                 icon = Icons.Filled.Add,
                 texto = "Productos",
                 modifier = Modifier.fillMaxWidth(),
-                onClick = onProductos
+                onClick = {
+                    // Navegar a la pantalla productos pasando eventoId
+
+                }
             )
 
             AccionCuadro(
@@ -280,7 +286,7 @@ fun EventoDetalleScreen(
 
 @Composable
 fun AccionCuadro(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     texto: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit

@@ -16,9 +16,9 @@ class CompraViewModel : ViewModel() {
     private fun cargarProductos() {
         // Aquí deberías cargar los productos desde tu fuente de datos
         _productos.value = listOf(
-            Producto(id = "1", nombre = "Gaseosa", precioUnitario = 50.0, eventoId = "Bu"),
-            Producto(id = "2", nombre = "Papas", precioUnitario = 30.0, eventoId = "Bu"),
-            Producto(id = "3", nombre = "Agua", precioUnitario = 20.0, eventoId = "Bu"),
+            Producto(id = "1", nombre = "Gaseosa", precio = 50.0, eventoId = "Bu"),
+            Producto(id = "2", nombre = "Papas", precio = 30.0, eventoId = "Bu"),
+            Producto(id = "3", nombre = "Agua", precio = 20.0, eventoId = "Bu"),
         )
     }
 

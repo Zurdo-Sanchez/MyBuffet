@@ -6,11 +6,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.google.firebase.firestore.FirebaseFirestore
 
-
 class EventoViewModel : ViewModel() {
 
     private val _eventos = MutableStateFlow<List<Evento>>(emptyList())
     val eventos: StateFlow<List<Evento>> get() = _eventos
+
+    // 🔹 Agregamos eventoSeleccionado para compartirlo entre pantallas
+    var eventoSeleccionado: Evento? = null
 
     fun cargarEventos(onResultado: (List<Evento>) -> Unit) {
         val db = FirebaseFirestore.getInstance()

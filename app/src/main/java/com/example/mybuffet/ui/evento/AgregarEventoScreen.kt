@@ -5,12 +5,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mybuffet.models.Evento
 import com.example.mybuffet.models.EventoViewModel
 
 @Composable
 fun AgregarEventoScreen(
-    eventoViewModel: EventoViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    eventoViewModel: EventoViewModel = viewModel(),
     onEventoCreado: (Evento) -> Unit,
     onCancelar: () -> Unit
 ) {
