@@ -6,8 +6,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,26 +28,38 @@ fun DashboardScreen(
     onEventoClick: (Evento) -> Unit,
     onAgregarClick: () -> Unit,
     onCerrarClick: () -> Unit
-
 ) {
     var filtroTexto by remember { mutableStateOf("") }
-    var filtrarActivos by remember { mutableStateOf(true) }
-    var filtrarInactivos by remember { mutableStateOf(false) }
-    var filtrarBorrados by remember { mutableStateOf(false) }
+    var filtroEstado by remember { mutableStateOf(1) } // Por defecto activos
+
+    // Colores botones filtro
+    val colorAgregar = MaterialTheme.colorScheme.primary
+    val colorActivo = Color(0xFF4CAF50) // Verde
+    val colorCerrado = Color(0xFFFF9800) // Naranja
+    val colorBorrado = MaterialTheme.colorScheme.error // Rojo igual que botón cerrar
 
     // Filtrar eventos según búsqueda y estado
-    val eventosFiltrados = eventos.filter { evento ->
-        val nombreCoincide = evento.nombre.contains(filtroTexto, ignoreCase = true)
-        val estadoCoincide = (filtrarActivos && evento.estado == 1) || (filtrarInactivos && evento.estado == 0 ) || (filtrarBorrados && evento.estado == 8 )
-        nombreCoincide && estadoCoincide
-    }
+    val eventosFiltrados = eventos
+        .filter { evento ->
+            val nombreCoincide = evento.nombre.contains(filtroTexto, ignoreCase = true)
+            val estadoCoincide = when (filtroEstado) {
+                -1 -> true // Todos
+                else -> evento.estado == filtroEstado
+            }
+            nombreCoincide && estadoCoincide
+        }
+        .sortedBy { it.nombre.lowercase() } // Orden alfabético ignorando mayúsculas
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text("Hola, $username!", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
+        Text(
+            "Hola, $username!",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(16.dp)
+        )
         // Título artístico centrado
         Box(
             modifier = Modifier
@@ -92,28 +102,39 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Filtros con checkbox
+        // Filtros con botones
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Checkbox(
-                checked = filtrarActivos,
-                onCheckedChange = { filtrarActivos = it }
+            // Todos
+            FilterButton(
+                text = "Todos",
+                selected = filtroEstado == -1,
+                colorSelected = colorAgregar,
+                onClick = { filtroEstado = -1 }
             )
-            Text("Activos", modifier = Modifier.padding(end = 16.dp))
-
-            Checkbox(
-                checked = filtrarInactivos,
-                onCheckedChange = { filtrarInactivos = it }
+            // Activos
+            FilterButton(
+                text = "Activos",
+                selected = filtroEstado == 1,
+                colorSelected = colorActivo,
+                onClick = { filtroEstado = 1 }
             )
-            Text("Inactivos")
-
-            Checkbox(
-                checked = filtrarBorrados,
-                onCheckedChange = { filtrarBorrados = it }
+            // Cerrados
+            FilterButton(
+                text = "Cerrados",
+                selected = filtroEstado == 0,
+                colorSelected = colorCerrado,
+                onClick = { filtroEstado = 0 }
             )
-            Text("Borrados")
+            // Borrados
+            FilterButton(
+                text = "Borrados",
+                selected = filtroEstado == 8,
+                colorSelected = colorBorrado,
+                onClick = { filtroEstado = 8 }
+            )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -134,17 +155,25 @@ fun DashboardScreen(
                 )
             } else {
                 eventosFiltrados.forEach { evento ->
+                    val colorEvento = when (evento.estado) {
+                        1 -> colorActivo
+                        0 -> colorCerrado
+                        8 -> colorBorrado
+                        else -> Color.Gray
+                    }
                     Button(
                         onClick = { onEventoClick(evento) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = colorEvento)
                     ) {
                         Text(
                             text = evento.nombre,
-                            modifier = Modifier.padding(8.dp),
-                            fontSize = 18.sp
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            fontSize = 18.sp,
+                            color = Color.White
                         )
                     }
                 }
@@ -160,7 +189,8 @@ fun DashboardScreen(
         ) {
             Button(
                 onClick = onAgregarClick,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text("Agregar")
             }
@@ -168,10 +198,52 @@ fun DashboardScreen(
             Button(
                 onClick = onCerrarClick,
                 modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                colors = ButtonDefaults.buttonColors(containerColor = colorBorrado),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text("Cerrar App", color = MaterialTheme.colorScheme.onError)
             }
         }
     }
+}
+
+@Composable
+fun FilterButton(
+    text: String,
+    selected: Boolean,
+    colorSelected: Color,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected) colorSelected else Color.Transparent,
+            contentColor = if (selected) Color.White else Color.Gray
+        ),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+        border = if (selected) null else ButtonDefaults.outlinedButtonBorder
+    ) {
+        Text(text = text, fontSize = 14.sp)
+    }
+}
+
+// Preview con datos ficticios
+@Composable
+fun DashboardScreenPreview() {
+    val eventosFicticios = listOf(
+        Evento(id = "1", nombre = "Cena Navidad", estado = 1),
+        Evento(id = "2", nombre = "Fiesta Año Nuevo", estado = 0),
+        Evento(id = "3", nombre = "Reunión Equipo", estado = 8),
+        Evento(id = "4", nombre = "Cumpleaños Juan", estado = 1),
+        Evento(id = "5", nombre = "Evento Borrado", estado = 8),
+        Evento(id = "6", nombre = "Acto Escolar", estado = 0)
+    )
+    DashboardScreen(
+        eventos = eventosFicticios,
+        username = "Juan",
+        onEventoClick = {},
+        onAgregarClick = {},
+        onCerrarClick = {}
+    )
 }
